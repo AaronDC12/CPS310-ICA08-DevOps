@@ -1,14 +1,19 @@
+
 """CPS 310 DevOps Fundamentals starter project.
 
 This program reads a small support-ticket data file and prints a summary.
 The project intentionally needs some release-readiness improvements.
 """
 
+import json
+
 from tabulate import tabulate
 
-DATA_FILE = "tickets.txt"
-REPORT_TITLE = "Support Ticket Summary"
-HIGH_PRIORITY_THRESHOLD = 4
+
+def load_config(filename):
+    """Load report settings from a JSON configuration file."""
+    with open(filename, encoding="utf-8") as file:
+        return json.load(file)
 
 
 def load_tickets(filename):
@@ -39,8 +44,7 @@ def load_tickets(filename):
 
 def count_open_tickets(tickets):
     """Return the number of tickets whose status is open."""
-    # Starter defect: this currently counts every ticket.
-    return len(tickets)
+    return sum(1 for ticket in tickets if ticket["status"] == "open")
 
 
 def count_high_priority_tickets(tickets, threshold):
@@ -81,11 +85,17 @@ def display_tickets(tickets):
 
 def main():
     """Run the support-ticket report."""
-    tickets = load_tickets(DATA_FILE)
-    summary = build_summary(tickets, HIGH_PRIORITY_THRESHOLD)
+    config = load_config("config.json")
 
-    print(REPORT_TITLE)
-    print("-" * len(REPORT_TITLE))
+    data_file = config["data_file"]
+    report_title = config["report_title"]
+    high_priority_threshold = config["high_priority_threshold"]
+
+    tickets = load_tickets(data_file)
+    summary = build_summary(tickets, high_priority_threshold)
+
+    print(report_title)
+    print("-" * len(report_title))
     display_tickets(tickets)
     print()
     print(f"Total tickets: {summary['total']}")
